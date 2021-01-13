@@ -4,6 +4,7 @@ Socket server forwarding request to internal server
 import logging
 import asyncio
 from typing import Optional
+import socket
 
 from ..ua.ua_binary import header_from_binary
 from ..common.utils import Buffer, NotEnoughData
@@ -135,7 +136,8 @@ class BinaryServer:
             sockname = self._server.sockets[0].getsockname()
             self.hostname = sockname[0]
             self.port = sockname[1]
-        self.logger.info('Listening on %s:%s', self.hostname, self.port)
+        self._server.sockets[0].setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+        self.logger.info('Beep bop boop - listening on %s:%s', self.hostname, self.port)
         self.cleanup_task = self.iserver.loop.create_task(self._await_closing_tasks())
 
     async def stop(self):
